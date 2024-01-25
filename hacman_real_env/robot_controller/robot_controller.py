@@ -360,7 +360,6 @@ class FrankaOSCController():
         joint_positions = joint_positions if joint_positions is not None else FC.HOME_JOINTS
         # reset_joints_to(self.robot_interface, joint_positions)
         fa.goto_joints(joint_positions)
-        fa.close_gripper()
         fa.open_gripper()
         print("\nReset with joints complete using Frankapy!")
 
@@ -428,6 +427,7 @@ class FrankaOSCController():
         current_axis_angle = quat2axisangle(current_quat)
 
         target_pos = np.array(target_delta_pos).reshape(3, 1) + current_pos
+        print("Current pos: ", current_pos, "target pos: ", target_pos)
 
         target_axis_angle = np.array(target_delta_axis_angle) + current_axis_angle
 
@@ -498,9 +498,12 @@ class FrankaOSCController():
     @property
     def eef_pose(self):
         # return self.robot_interface.last_eef_pose
-        current_ee_pose = np.array(fa._state_client.ros_data.O_T_EE).reshape(4, 4).transpose()
+        current_ee_pose = np.array(fa._state_client._get_current_robot_state().robot_state.O_T_EE).reshape(4, 4).transpose()
         print(current_ee_pose)
         return current_ee_pose
+    
+    def get_eef_pose(self):
+        return np.array(fa._state_client._get_current_robot_state().robot_state.O_T_EE).reshape(4, 4).transpose()
     
     @property
     def eef_rot_and_pos(self):
@@ -522,7 +525,7 @@ if __name__ == "__main__":
         controller_type="OSC_POSE",
         visualizer=False)
     
-    controller.move_by(np.array([0, 0, -0.1]), np.array([0, 0, 0]), num_steps=40, num_additional_steps=10)
+    #controller.move_by(np.array([0, 0, -0.1]), np.array([0, 0, 0]), num_steps=40, num_additional_steps=10)
     initial_joint_positions = [
         -0.55118707,
         -0.2420445,
@@ -541,18 +544,15 @@ if __name__ == "__main__":
         2.30396583422025,
         0.8480939705504309,
     ]
-    controller.reset()
+    #controller.reset()
     controller.reset(joint_positions=reset_joint_positions)
-    controller.move_to(np.array([0.45, -0.3, 0.25]), 
-                       target_quat=np.array([ 0.7071068, -0.7071068, 0, 0 ]),
-                       target_delta_axis_angle=np.array([0, 0, 0]),
-                       grasp=False,
-                       num_steps=40, num_additional_steps=10)
-    
-    controller.move_by(np.array([0, 0, -0.0]),
-                       np.array([0, 0, 0]),
-                       grasp=True,
-                       num_steps=40, num_additional_steps=10)
+    controller.move_by(np.array([0, 0, -0.1]), np.array([0, 0, 0]), num_steps=40, num_additional_steps=10)
+
+    # controller.move_to(np.array([0.45, -0.3, 0.25]), 
+    #                    target_quat=np.array([ 0.7071068, -0.7071068, 0, 0 ]),
+    #                    target_delta_axis_angle=np.array([0, 0, 0]),
+    #                    grasp=False,
+    #                    num_steps=40, num_additional_steps=10)
 
 
     eef_pose = controller.eef_pose
