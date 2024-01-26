@@ -354,13 +354,14 @@ class FrankaOSCController():
     # def reset(self, joint_positions=None):
     #     joint_positions = joint_positions if joint_positions is not None else self.reset_joint_positions
     #     reset_joints_to(self.robot_interface, joint_positions)
-    def reset(self, joint_positions=None):
+    def reset(self, joint_positions=None, grasp=False):
         print("\nFrankapy Home pose: \n", FC.HOME_POSE)
         print("\nFrankapy Home joints: \n", FC.HOME_JOINTS)
         joint_positions = joint_positions if joint_positions is not None else FC.HOME_JOINTS
         # reset_joints_to(self.robot_interface, joint_positions)
         fa.goto_joints(joint_positions)
-        fa.open_gripper()
+        if grasp==False:
+        	fa.open_gripper()
         print("\nReset with joints complete using Frankapy!")
 
     def move_to(self, 
@@ -546,13 +547,14 @@ if __name__ == "__main__":
     ]
     #controller.reset()
     controller.reset(joint_positions=reset_joint_positions)
-    controller.move_by(np.array([0, 0, -0.1]), np.array([0, 0, 0]), num_steps=40, num_additional_steps=10)
+    controller.move_by(np.array([0.1, 0.1, -0.25]), np.array([0, 0, 0]), num_steps=40, num_additional_steps=10)
 
     # controller.move_to(np.array([0.45, -0.3, 0.25]), 
     #                    target_quat=np.array([ 0.7071068, -0.7071068, 0, 0 ]),
     #                    target_delta_axis_angle=np.array([0, 0, 0]),
     #                    grasp=False,
     #                    num_steps=40, num_additional_steps=10)
+    controller.reset(joint_positions=reset_joint_positions, grasp=True)
 
 
     eef_pose = controller.eef_pose
