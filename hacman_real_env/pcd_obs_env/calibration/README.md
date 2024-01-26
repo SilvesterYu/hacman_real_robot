@@ -67,6 +67,29 @@ This script solves the correspondence between tag in robot base (world frame) an
 If you have multiple cameras and you need to align them together, see `hacman_real_env/pcd_obs_env/debug_pcd_processing.ipynb` for detailed instructions.
 
 
+---
+
+### Notes from Lifan:
+
+If using Ubuntu 20.04, follow this for Kinect SDK installation: [https://atlane.de/install-azure-kinect-sdk-1-4-on-ubuntu-22-04/](https://atlane.de/install-azure-kinect-sdk-1-4-on-ubuntu-22-04/)
+
+If there are issues like the one below
+
+```
+[2019-11-08 11:45:59.193] [error] [t=6263] /__w/1/s/extern/Azure-Kinect-Sensor-SDK/src/usbcommand/usbcommand.c (30): TraceLibUsbError(). /__w/1/s/extern/Azure-Kinect-Sensor-SDK/src/usbcommand/usbcommand.c (447): libusb_claim_interface(usbcmd->libusb, usbcmd->interface) returned LIBUSB_ERROR_BUSY in usb_cmd_create 
+[2019-11-08 11:45:59.193] [error] [t=6263] /__w/1/s/extern/Azure-Kinect-Sensor-SDK/src/usbcommand/usbcommand.c (30): TraceLibUsbError(). /__w/1/s/extern/Azure-Kinect-Sensor-SDK/src/usbcommand/usbcommand.c (489): libusb_release_interface(usbcmd->libusb, usbcmd->interface) returned LIBUSB_ERROR_NOT_FOUND in usb_cmd_destroy 
+```
+
+That means, by default, Linux limits image capturing to a Max_value, in my desktop it was limited to 16 MB.
+
+To extend the USBFS limit, I manually moddified the grub
+( /etc/default/grub ) chaning ( GRUB_CMDLINE_LINUX_DEFAULT="quiet splash" ) to ==> ( GRUB_CMDLINE_LINUX_DEFAULT="quiet splash usbcore.usbfs_memory_mb=1000" ),
+
+Update the grup ( sudo update-grub ) and restart your PC ( sudo reboot ).
+
+check if buffer size has successfully changed ( cat /sys/module/usbcore/parameters/usbfs_memory_mb )
+
+source: [https://github.com/microsoft/Azure_Kinect_ROS_Driver/issues/97](https://github.com/microsoft/Azure_Kinect_ROS_Driver/issues/97)
 
 
 
